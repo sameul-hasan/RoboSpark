@@ -65,7 +65,11 @@ const App: React.FC = () => {
       const list: any[] = [];
 
       snap.forEach((doc) => {
-        list.push(doc.data());
+        const data = doc.data();
+        list.push({
+          ...data,
+          percentage: Number(data.percentage),
+        });
       });
 
       setCouponList(list);
@@ -208,11 +212,7 @@ const App: React.FC = () => {
         fees: calculatedFees,
         registeredAt: serverTimestamp(),
       });
-      // await fetch("http://localhost:5000/api/register-mail", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(formData),
-      // });
+
       Swal.fire("Success", "Your team has been registered!", "success");
 
       setFormData({
