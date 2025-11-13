@@ -1,4 +1,3 @@
-// src/pages/coupons/CouponManager.tsx
 import React, { useEffect, useState } from "react";
 import {
   Tag,
