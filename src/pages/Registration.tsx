@@ -53,6 +53,14 @@ const App: React.FC = () => {
 
   const competitions = Object.keys(competitionFees);
 
+  // NEW: Coupon list
+  const coupons: any = {
+    TEST1: 5,
+    TEST2: 10,
+    TEST3: 15,
+    TJHSOTYPE: 20,
+  };
+
   const [formData, setFormData] = useState({
     teamName: "",
     institution: "",
@@ -63,6 +71,7 @@ const App: React.FC = () => {
     paymentMethod: "",
     senderNumber: "",
     transactionId: "",
+    couponCode: "", // NEW
     members: [
       { name: "", email: "", phone: "" },
       { name: "", email: "", phone: "" },
@@ -126,15 +135,29 @@ const App: React.FC = () => {
     const base = feeInfo.base;
     const extraMembers = Math.max(0, teamSize - 3);
     const extraFee = extraMembers * feeInfo.extra;
-    const total = base + extraFee;
+    const subtotal = base + extraFee;
+
+    // NEW: Apply coupon if valid
+    let discountPercent = 0;
+    let discountAmount = 0;
+
+    if (formData.couponCode && coupons[formData.couponCode.toUpperCase()]) {
+      discountPercent = coupons[formData.couponCode.toUpperCase()];
+      discountAmount = Math.floor((subtotal * discountPercent) / 100);
+    }
+
+    const total = subtotal - discountAmount;
 
     return {
       base,
       extraFee,
-      total,
       extraMembers,
+      subtotal,
+      discountPercent,
+      discountAmount,
+      total,
     };
-  }, [formData.competition, teamSize]);
+  }, [formData.competition, teamSize, formData.couponCode]);
 
   const submitForm = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,6 +197,7 @@ const App: React.FC = () => {
         paymentMethod: "",
         senderNumber: "",
         transactionId: "",
+        couponCode: "",
         members: [
           { name: "", email: "", phone: "" },
           { name: "", email: "", phone: "" },
@@ -351,12 +375,14 @@ const App: React.FC = () => {
             <p className="text-cyan-300 font-bold text-xl">
               Registration Fee Summary
             </p>
+
             <p>
               Base Fee (3 Members):{" "}
               <span className="text-cyan-400 font-bold">
                 {calculatedFees.base} BDT
               </span>
             </p>
+
             {calculatedFees.extraMembers > 0 && (
               <p>
                 Extra Members ({calculatedFees.extraMembers}):{" "}
@@ -365,11 +391,40 @@ const App: React.FC = () => {
                 </span>
               </p>
             )}
+
+            <p className="font-bold text-yellow-300">
+              Subtotal: {calculatedFees.subtotal} BDT
+            </p>
+
+            {/* NEW DISCOUNT DISPLAY */}
+            {calculatedFees.discountPercent > 0 && (
+              <p className="font-bold text-pink-400">
+                Coupon Applied ({calculatedFees.discountPercent}%): -{" "}
+                {calculatedFees.discountAmount} BDT
+              </p>
+            )}
+
             <p className="text-2xl font-extrabold text-green-400">
               Total Payable: {calculatedFees.total} BDT
             </p>
           </section>
         )}
+
+        {/* COUPON FIELD */}
+        <section>
+          <InputField
+            label="Coupon Code"
+            name="couponCode"
+            placeholder="Enter coupon (optional)"
+            value={formData.couponCode}
+            onChange={handleChange}
+          />
+
+          {formData.couponCode &&
+            !coupons[formData.couponCode.toUpperCase()] && (
+              <p className="text-red-400 text-sm">Invalid coupon code.</p>
+            )}
+        </section>
 
         {/* PAYMENT */}
         <section>
@@ -389,6 +444,7 @@ const App: React.FC = () => {
               <option value="">Select method</option>
               <option value="bkash">bKash</option>
               <option value="nagad">Nagad</option>
+              <option value="rocket">Rocket</option>
             </select>
           </div>
 
@@ -409,10 +465,14 @@ const App: React.FC = () => {
                   Nagad: 018XXXXXXXX
                 </p>
               )}
+              {formData.paymentMethod === "rocket" && (
+                <p className="text-yellow-400 text-lg font-bold">
+                  Rocket: 018XXXXXXXX
+                </p>
+              )}
             </div>
           )}
 
-          {/* Sender Number */}
           <InputField
             label="Sender Number"
             name="senderNumber"
@@ -422,7 +482,6 @@ const App: React.FC = () => {
             placeholder="Number used to send payment"
           />
 
-          {/* Transaction ID */}
           <InputField
             label="Transaction ID"
             name="transactionId"
