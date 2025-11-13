@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 220 40% 5%;
+    --foreground: 180 100% 95%;
+
+    --card: 220 35% 8%;
+    --card-foreground: 180 100% 95%;
+
+    --popover: 220 35% 8%;
+    --popover-foreground: 180 100% 95%;
+
+    --primary: 190 100% 50%;
+    --primary-foreground: 220 40% 5%;
+
+    --secondary: 150 100% 50%;
+    --secondary-foreground: 220 40% 5%;
+
+    --muted: 220 30% 15%;
+    --muted-foreground: 180 20% 60%;
+
+    --accent: 150 100% 50%;
+    --accent-foreground: 220 40% 5%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 30% 15%;
+    --input: 220 30% 15%;
+    --ring: 190 100% 50%;
+
+    --radius: 0.75rem;
+
+    --neon-blue: 190 100% 50%;
+    --neon-green: 150 100% 50%;
+    --glow-primary: 190 100% 50%;
+    --glow-secondary: 150 100% 50%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(190 100% 50%) 0%, hsl(150 100% 50%) 100%);
+    --gradient-dark: linear-gradient(180deg, hsl(220 40% 5%) 0%, hsl(220 35% 8%) 100%);
+    
+    --shadow-neon-blue: 0 0 20px hsla(190, 100%, 50%, 0.5);
+    --shadow-neon-green: 0 0 20px hsla(150, 100%, 50%, 0.5);
+    --shadow-glow: 0 0 40px hsla(190, 100%, 50%, 0.3);
+
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark mode uses same futuristic theme */
+    --background: 220 40% 5%;
+    --foreground: 180 100% 95%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+  }
+}
+
+@layer utilities {
+  .text-glow-primary {
+    text-shadow: var(--shadow-neon-blue);
+  }
+
+  .text-glow-secondary {
+    text-shadow: var(--shadow-neon-green);
+  }
+
+  .glow-border {
+    box-shadow: 0 0 20px hsla(190, 100%, 50%, 0.3);
+  }
+
+  .neon-border {
+    border: 1px solid hsl(var(--primary));
+    box-shadow: 0 0 10px hsla(190, 100%, 50%, 0.3), inset 0 0 10px hsla(190, 100%, 50%, 0.1);
+  }
+
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
