@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import ScrollToTop from "./ScrollToTop";
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -37,10 +38,14 @@ const Navigation = () => {
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "bg-card/95 backdrop-blur-md shadow-lg neon-border" : "bg-transparent"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300
+    ${
+      isScrolled
+        ? "bg-white/10 backdrop-blur-xl border-b border-white/20 shadow-lg"
+        : "bg-white/5 backdrop-blur-md"
+    }`}
     >
+      <ScrollToTop />
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -90,7 +95,15 @@ const Navigation = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden mt-4 pb-4 space-y-4"
+              className="
+        md:hidden mt-4 pb-4 space-y-4 
+        bg-gray-900/95 
+        backdrop-blur-xl 
+        border border-primary/30 
+        rounded-xl 
+        shadow-lg 
+        px-4 py-5
+      "
             >
               {navLinks.map((link) => (
                 <Link
@@ -106,6 +119,7 @@ const Navigation = () => {
                   {link.name}
                 </Link>
               ))}
+
               <Button
                 asChild
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-orbitron font-semibold"

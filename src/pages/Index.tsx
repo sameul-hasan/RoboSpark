@@ -273,6 +273,120 @@ const Index = () => {
         </div>
       </section>
 
+      {/* VENUE + DETAILS + SCHEDULE SECTION */}
+      <section className="py-20 ">
+        <div className="container mx-auto px-4 max-w-5xl">
+          {/* Title */}
+          <h2 className="text-4xl font-orbitron font-bold mb-12 text-center bg-gradient-to-r from-cyan-300 to-indigo-400 bg-clip-text text-transparent">
+            Event Information
+          </h2>
+
+          {/* Venue */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="bg-gray-900/60 border border-cyan-700/40 rounded-2xl p-8 mb-10"
+          >
+            <h3 className="text-2xl font-orbitron font-bold text-cyan-400 mb-4">
+              Proposed Venue
+            </h3>
+            <p className="text-gray-300 text-lg leading-relaxed">
+              Daffodil Smart City, Birulia, Savar, Dhaka – 1216.
+            </p>
+          </motion.div>
+
+          {/* Event Date + Organizers */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="bg-gray-900/60 border border-indigo-600/40 rounded-2xl p-8 mb-12"
+          >
+            <h3 className="text-2xl font-orbitron font-bold text-indigo-400 mb-4">
+              RoboSpark 2025 Event Details
+            </h3>
+
+            <p className="text-gray-300 text-lg mb-2">
+              <span className="font-bold text-cyan-300">Date:</span> 7th
+              December, 2025
+            </p>
+
+            <p className="text-gray-300 text-lg mb-2">
+              <span className="font-bold text-cyan-300">Venue:</span> Daffodil
+              Smart City
+            </p>
+
+            <p className="text-gray-300 text-lg leading-relaxed mt-4">
+              <span className="font-bold text-cyan-300">Organizers:</span>{" "}
+              Department of Software Engineering (SWE), Daffodil International
+              University · DIU Robotics Lab · DIU Robotics Club
+            </p>
+          </motion.div>
+
+          {/* Program Schedule */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="bg-gray-900/60 border border-purple-600/40 rounded-2xl p-8"
+          >
+            <h3 className="text-3xl font-orbitron font-bold text-purple-400 mb-6 text-center">
+              Program Schedule
+            </h3>
+
+            <p className="text-gray-400 text-center mb-6">
+              All times are in Bangladesh Standard Time (GMT +6)
+            </p>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-gray-300">
+                <thead>
+                  <tr className="bg-purple-900/40 text-purple-300">
+                    <th className="p-3 border-b border-purple-700/50">Sl.</th>
+                    <th className="p-3 border-b border-purple-700/50">
+                      Purpose
+                    </th>
+                    <th className="p-3 border-b border-purple-700/50">Time</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {[
+                    ["1", "Arrival of All Participants", "8:15 AM"],
+                    ["2", "Opening Ceremony", "8:30 AM – 9:00 AM"],
+                    ["3", "Breakfast Distribution", "9:00 AM – 9:30 AM"],
+                    ["4", "Robo Soccer", "10:00 AM – 1:30 PM"],
+                    [
+                      "5",
+                      "Line Following Robot Competition",
+                      "9:30 AM – 1:30 PM",
+                    ],
+                    ["6", "Techathon", "10:00 AM – 3:00 PM"],
+                    ["7", "Drone Race", "10:00 AM – 3:00 PM"],
+                    ["8", "Cosmo Cleanse", "9:00 AM – 3:30 PM"],
+                    ["9", "Lunch Break", "1:30 PM – 2:15 PM"],
+                    ["10", "Closing Ceremony", "4:00 PM – 5:00 PM"],
+                  ].map(([sl, purpose, time], index) => (
+                    <tr
+                      key={index}
+                      className="hover:bg-purple-800/20 transition border-b border-gray-700/40"
+                    >
+                      <td className="p-3">{sl}</td>
+                      <td className="p-3">{purpose}</td>
+                      <td className="p-3">{time}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-20">
         <div className="container mx-auto px-4">
