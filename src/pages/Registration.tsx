@@ -1,118 +1,192 @@
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import React, { useState, useMemo } from "react";
+import { db } from "@/firebase/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { CountdownTimer } from "@/components/CountDown";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 
-const Registration = () => {
-  const [searchParams] = useSearchParams();
+interface InputProps {
+  label: string;
+  name: string;
+  value: string;
+  placeholder?: string;
+  type?: string;
+  required?: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const InputField: React.FC<InputProps> = ({
+  label,
+  name,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  required = false,
+}) => (
+  <div className="space-y-1 w-full">
+    <label className="text-cyan-300 text-sm font-semibold">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    <input
+      id={name}
+      name={name}
+      type={type}
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      required={required}
+      className="w-full px-4 py-2 bg-gray-800 text-white rounded-lg border border-gray-700
+      focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition"
+    />
+  </div>
+);
+
+const App: React.FC = () => {
+  const competitionFees: any = {
+    "Drone Challenge": { base: 2000, extra: 600 },
+    "Line Following Robot (LFR)": { base: 1500, extra: 500 },
+    Techathon: { base: 2000, extra: 600 },
+    "Robot Soccer": { base: 1500, extra: 500 },
+    "Cosmo Cleanse": { base: 1500, extra: 500 },
+  };
+
+  const competitions = Object.keys(competitionFees);
+
+  // NEW: Coupon list
+  const coupons: any = {
+    TEST1: 5,
+    TEST2: 10,
+    TEST3: 15,
+    TJHSOTYPE: 20,
+  };
+
   const [formData, setFormData] = useState({
     teamName: "",
     institution: "",
-    competition: searchParams.get("competition") || "",
+    competition: "",
     leaderName: "",
     leaderEmail: "",
     leaderPhone: "",
-    member2Name: "",
-    member3Name: "",
+    paymentMethod: "",
+    senderNumber: "",
+    transactionId: "",
+    couponCode: "", // NEW
+    members: [
+      { name: "", email: "", phone: "" },
+      { name: "", email: "", phone: "" },
+    ],
+    paymentaccepted: false,
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const competitions = [
-    "Drone Challenge",
-    "Line Following Robot (LFR)",
-    "Techathon",
-    "Robot Soccer",
-    "Cosmo Cleanse",
-  ];
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleCompetitionChange = (value: string) => {
-    setFormData({
-      ...formData,
-      competition: value,
-    });
+  const handleMemberChange = (
+    index: number,
+    field: "name" | "email" | "phone",
+    value: string
+  ) => {
+    const updated = [...formData.members];
+    updated[index][field] = value;
+    setFormData({ ...formData, members: updated });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // Basic validation
-    if (
-      !formData.teamName ||
-      !formData.institution ||
-      !formData.competition ||
-      !formData.leaderName ||
-      !formData.leaderEmail ||
-      !formData.leaderPhone
-    ) {
-      toast.error("Please fill in all required fields");
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.leaderEmail)) {
-      toast.error("Please enter a valid email address");
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Phone validation (basic)
-    const phoneRegex = /^[0-9]{10,15}$/;
-    if (!phoneRegex.test(formData.leaderPhone.replace(/[\s-]/g, ""))) {
-      toast.error("Please enter a valid phone number");
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Save to localStorage
-    setTimeout(() => {
-      const existingRegistrations = JSON.parse(
-        localStorage.getItem("intraspark_registrations") || "[]"
-      );
-
-      const newRegistration = {
-        id: Date.now(),
+  const addMember = () => {
+    if (formData.members.length < 5) {
+      setFormData({
         ...formData,
-        registeredAt: new Date().toISOString(),
-      };
+        members: [...formData.members, { name: "", email: "", phone: "" }],
+      });
+    }
+  };
 
-      existingRegistrations.push(newRegistration);
-      localStorage.setItem(
-        "intraspark_registrations",
-        JSON.stringify(existingRegistrations)
+  const removeMember = (index: number) => {
+    const updated = formData.members.filter((_, i) => i !== index);
+    setFormData({ ...formData, members: updated });
+  };
+
+  const validate = () => {
+    return (
+      formData.teamName &&
+      formData.institution &&
+      formData.competition &&
+      formData.leaderName &&
+      formData.leaderEmail &&
+      formData.leaderPhone &&
+      formData.paymentMethod &&
+      formData.senderNumber &&
+      formData.transactionId
+    );
+  };
+
+  const teamSize = useMemo(
+    () => 1 + formData.members.filter((m) => m.name.trim() !== "").length,
+    [formData]
+  );
+
+  const calculatedFees = useMemo(() => {
+    if (!formData.competition) return null;
+
+    const feeInfo = competitionFees[formData.competition];
+    const base = feeInfo.base;
+    const extraMembers = Math.max(0, teamSize - 3);
+    const extraFee = extraMembers * feeInfo.extra;
+    const subtotal = base + extraFee;
+
+    // NEW: Apply coupon if valid
+    let discountPercent = 0;
+    let discountAmount = 0;
+
+    if (formData.couponCode && coupons[formData.couponCode.toUpperCase()]) {
+      discountPercent = coupons[formData.couponCode.toUpperCase()];
+      discountAmount = Math.floor((subtotal * discountPercent) / 100);
+    }
+
+    const total = subtotal - discountAmount;
+
+    return {
+      base,
+      extraFee,
+      extraMembers,
+      subtotal,
+      discountPercent,
+      discountAmount,
+      total,
+    };
+  }, [formData.competition, teamSize, formData.couponCode]);
+
+  const submitForm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) {
+      Swal.fire("Missing Fields", "Please fill all required fields.", "error");
+      return;
+    }
+
+    Swal.fire({
+      title: "Submitting...",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    try {
+      const cleanedMembers = formData.members.filter(
+        (m) => m.name.trim() !== ""
       );
 
-      console.log("Form submitted:", formData);
-      toast.success(
-        "Thank you! Your team has been successfully registered for IntraSpark 2025.",
-        {
-          description: `Team ${formData.teamName} registered for ${formData.competition}`,
-        }
-      );
+      await addDoc(collection(db, "registrations"), {
+        ...formData,
+        members: cleanedMembers,
+        teamSize,
+        fees: calculatedFees,
+        registeredAt: serverTimestamp(),
+      });
 
-      // Reset form
+      Swal.fire("Success", "Your team has been registered!", "success");
+
       setFormData({
         teamName: "",
         institution: "",
@@ -120,218 +194,313 @@ const Registration = () => {
         leaderName: "",
         leaderEmail: "",
         leaderPhone: "",
-        member2Name: "",
-        member3Name: "",
+        paymentMethod: "",
+        senderNumber: "",
+        transactionId: "",
+        couponCode: "",
+        members: [
+          { name: "", email: "", phone: "" },
+          { name: "", email: "", phone: "" },
+        ],
+        paymentaccepted: false,
       });
-
-      setIsSubmitting(false);
-    }, 1500);
+    } catch {
+      Swal.fire("Error", "Failed to submit. Try again.", "error");
+    }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="pt-32 pb-12 bg-card/30">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center max-w-4xl mx-auto"
-          >
-            <h1 className="text-5xl md:text-6xl font-orbitron font-bold mb-6 gradient-text">
-              Team Registration
-            </h1>
-            <p className="text-xl text-muted-foreground">
-              Register your team for IntraSpark 2025 and compete for amazing
-              prizes!
-            </p>
-          </motion.div>
-        </div>
-      </section>
+    <div className="min-h-screen pt-32 bg-gradient-to-br from-gray-950 via-indigo-900 to-black text-white p-6">
+      <div className="text-center">
+        <h1 className="text-5xl md:text-6xl font-['Orbitron'] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">
+          ROBOSPARK 2025
+        </h1>
+        <p className="text-cyan-200 mt-3 text-lg">
+          Team Registration – Max 6 Members
+        </p>
+      </div>
 
-      {/* Registration Form */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="max-w-3xl mx-auto"
-          >
-            <form
-              onSubmit={handleSubmit}
-              className="bg-card/50 backdrop-blur-sm rounded-lg p-8 md:p-12 neon-border space-y-6"
+      <CountdownTimer />
+
+      <form
+        onSubmit={submitForm}
+        className="max-w-4xl mx-auto bg-gray-900/70 p-10 rounded-2xl shadow-2xl border border-cyan-700/30 mt-10 space-y-10"
+      >
+        {/* TEAM INFO */}
+        <section>
+          <h2 className="text-3xl font-bold text-cyan-400 mb-4">
+            1. Team Details
+          </h2>
+
+          <InputField
+            label="Team Name"
+            name="teamName"
+            required
+            value={formData.teamName}
+            onChange={handleChange}
+          />
+
+          <InputField
+            label="Institution Name"
+            name="institution"
+            required
+            value={formData.institution}
+            onChange={handleChange}
+          />
+
+          <div className="space-y-2">
+            <label className="text-cyan-300 font-semibold">Competition *</label>
+            <select
+              name="competition"
+              required
+              value={formData.competition}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-cyan-500"
             >
-              {/* Team Information */}
-              <div>
-                <h2 className="text-2xl font-orbitron font-bold text-primary mb-6">
-                  Team Information
-                </h2>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="teamName" className="text-foreground">
-                      Team Name *
-                    </Label>
-                    <Input
-                      id="teamName"
-                      name="teamName"
-                      value={formData.teamName}
-                      onChange={handleInputChange}
-                      placeholder="Enter your team name"
-                      required
-                      className="bg-muted/50 border-border"
-                    />
-                  </div>
+              <option value="">Select competition</option>
+              {competitions.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+        </section>
 
-                  <div>
-                    <Label htmlFor="institution" className="text-foreground">
-                      Institution Name *
-                    </Label>
-                    <Input
-                      id="institution"
-                      name="institution"
-                      value={formData.institution}
-                      onChange={handleInputChange}
-                      placeholder="Enter your university/college name"
-                      required
-                      className="bg-muted/50 border-border"
-                    />
-                  </div>
+        {/* TEAM LEADER */}
+        <section>
+          <h2 className="text-3xl font-bold text-cyan-400 mb-4">
+            2. Team Leader (Required)
+          </h2>
 
-                  <div>
-                    <Label htmlFor="competition" className="text-foreground">
-                      Competition *
-                    </Label>
-                    <Select
-                      value={formData.competition}
-                      onValueChange={handleCompetitionChange}
-                    >
-                      <SelectTrigger className="bg-muted/50 border-border">
-                        <SelectValue placeholder="Select a competition" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover border-border">
-                        {competitions.map((comp) => (
-                          <SelectItem key={comp} value={comp}>
-                            {comp}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <InputField
+              label="Leader Full Name"
+              name="leaderName"
+              required
+              value={formData.leaderName}
+              onChange={handleChange}
+            />
+
+            <InputField
+              label="Leader Email"
+              name="leaderEmail"
+              type="email"
+              required
+              value={formData.leaderEmail}
+              onChange={handleChange}
+            />
+
+            <InputField
+              label="Leader Phone"
+              name="leaderPhone"
+              type="tel"
+              required
+              value={formData.leaderPhone}
+              onChange={handleChange}
+            />
+          </div>
+        </section>
+
+        {/* MEMBERS */}
+        <section>
+          <h2 className="text-3xl font-bold text-cyan-400 mb-4">
+            3. Team Members
+          </h2>
+
+          {formData.members.map((m, index) => (
+            <div
+              key={index}
+              className="border border-gray-700 p-4 rounded-xl bg-gray-800/50 mb-4"
+            >
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-lg text-cyan-300 font-semibold">
+                  Member {index + 2}
+                </h3>
+
+                {formData.members.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeMember(index)}
+                    className="text-red-400 text-xl"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
 
-              {/* Team Leader Information */}
-              <div>
-                <h2 className="text-2xl font-orbitron font-bold text-primary mb-6">
-                  Team Leader Details
-                </h2>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="leaderName" className="text-foreground">
-                      Full Name *
-                    </Label>
-                    <Input
-                      id="leaderName"
-                      name="leaderName"
-                      value={formData.leaderName}
-                      onChange={handleInputChange}
-                      placeholder="Enter team leader's full name"
-                      required
-                      className="bg-muted/50 border-border"
-                    />
-                  </div>
+              <div className="grid md:grid-cols-3 gap-4">
+                <InputField
+                  label="Name"
+                  name="member-name"
+                  value={m.name}
+                  onChange={(e) =>
+                    handleMemberChange(index, "name", e.target.value)
+                  }
+                />
 
-                  <div>
-                    <Label htmlFor="leaderEmail" className="text-foreground">
-                      Email Address *
-                    </Label>
-                    <Input
-                      id="leaderEmail"
-                      name="leaderEmail"
-                      type="email"
-                      value={formData.leaderEmail}
-                      onChange={handleInputChange}
-                      placeholder="leader@example.com"
-                      required
-                      className="bg-muted/50 border-border"
-                    />
-                  </div>
+                <InputField
+                  label="Email"
+                  name="member-email"
+                  type="email"
+                  value={m.email}
+                  onChange={(e) =>
+                    handleMemberChange(index, "email", e.target.value)
+                  }
+                />
 
-                  <div>
-                    <Label htmlFor="leaderPhone" className="text-foreground">
-                      Phone Number *
-                    </Label>
-                    <Input
-                      id="leaderPhone"
-                      name="leaderPhone"
-                      type="tel"
-                      value={formData.leaderPhone}
-                      onChange={handleInputChange}
-                      placeholder="+880 1234-567890"
-                      required
-                      className="bg-muted/50 border-border"
-                    />
-                  </div>
-                </div>
+                <InputField
+                  label="Phone"
+                  name="member-phone"
+                  type="tel"
+                  value={m.phone}
+                  onChange={(e) =>
+                    handleMemberChange(index, "phone", e.target.value)
+                  }
+                />
               </div>
+            </div>
+          ))}
 
-              {/* Team Members */}
-              <div>
-                <h2 className="text-2xl font-orbitron font-bold text-primary mb-6">
-                  Team Members
-                </h2>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="member2Name" className="text-foreground">
-                      Member 2 Name
-                    </Label>
-                    <Input
-                      id="member2Name"
-                      name="member2Name"
-                      value={formData.member2Name}
-                      onChange={handleInputChange}
-                      placeholder="Enter member 2's full name (optional)"
-                      className="bg-muted/50 border-border"
-                    />
-                  </div>
+          <button
+            type="button"
+            onClick={addMember}
+            className="px-5 py-2 bg-green-600 rounded-lg hover:bg-green-500"
+          >
+            + Add Member
+          </button>
+        </section>
 
-                  <div>
-                    <Label htmlFor="member3Name" className="text-foreground">
-                      Member 3 Name
-                    </Label>
-                    <Input
-                      id="member3Name"
-                      name="member3Name"
-                      value={formData.member3Name}
-                      onChange={handleInputChange}
-                      placeholder="Enter member 3's full name (optional)"
-                      className="bg-muted/50 border-border"
-                    />
-                  </div>
-                </div>
-              </div>
+        {/* FEE SUMMARY */}
+        {calculatedFees && (
+          <section className="bg-gray-800/60 border border-cyan-700/40 p-6 rounded-xl text-lg space-y-2">
+            <p className="text-cyan-300 font-bold text-xl">
+              Registration Fee Summary
+            </p>
 
-              {/* Submit Button */}
-              <div className="pt-6">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-orbitron font-semibold text-lg py-6 glow-border"
-                >
-                  {isSubmitting ? "Submitting..." : "Register Team"}
-                </Button>
-                <p className="text-sm text-muted-foreground text-center mt-4">
-                  * Required fields. You'll receive a confirmation email after
-                  registration.
+            <p>
+              Base Fee (3 Members):{" "}
+              <span className="text-cyan-400 font-bold">
+                {calculatedFees.base} BDT
+              </span>
+            </p>
+
+            {calculatedFees.extraMembers > 0 && (
+              <p>
+                Extra Members ({calculatedFees.extraMembers}):{" "}
+                <span className="text-cyan-400 font-bold">
+                  {calculatedFees.extraFee} BDT
+                </span>
+              </p>
+            )}
+
+            <p className="font-bold text-yellow-300">
+              Subtotal: {calculatedFees.subtotal} BDT
+            </p>
+
+            {/* NEW DISCOUNT DISPLAY */}
+            {calculatedFees.discountPercent > 0 && (
+              <p className="font-bold text-pink-400">
+                Coupon Applied ({calculatedFees.discountPercent}%): -{" "}
+                {calculatedFees.discountAmount} BDT
+              </p>
+            )}
+
+            <p className="text-2xl font-extrabold text-green-400">
+              Total Payable: {calculatedFees.total} BDT
+            </p>
+          </section>
+        )}
+
+        {/* COUPON FIELD */}
+        <section>
+          <InputField
+            label="Coupon Code"
+            name="couponCode"
+            placeholder="Enter coupon (optional)"
+            value={formData.couponCode}
+            onChange={handleChange}
+          />
+
+          {formData.couponCode &&
+            !coupons[formData.couponCode.toUpperCase()] && (
+              <p className="text-red-400 text-sm">Invalid coupon code.</p>
+            )}
+        </section>
+
+        {/* PAYMENT */}
+        <section>
+          <h2 className="text-3xl font-bold text-cyan-400 mb-4">4. Payment</h2>
+
+          <div className="space-y-2">
+            <label className="text-cyan-300 font-semibold">
+              Payment Method *
+            </label>
+            <select
+              name="paymentMethod"
+              required
+              value={formData.paymentMethod}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-cyan-500"
+            >
+              <option value="">Select method</option>
+              <option value="bkash">bKash</option>
+              <option value="nagad">Nagad</option>
+              <option value="rocket">Rocket</option>
+            </select>
+          </div>
+
+          {formData.paymentMethod && (
+            <div className="bg-gray-800/40 p-4 rounded-lg border border-cyan-700/30 mt-4">
+              <p className="text-cyan-300 font-semibold mb-2">
+                Send Payment To:
+              </p>
+
+              {formData.paymentMethod === "bkash" && (
+                <p className="text-pink-400 text-lg font-bold">
+                  bKash: 017XXXXXXXX
                 </p>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      </section>
+              )}
+
+              {formData.paymentMethod === "nagad" && (
+                <p className="text-yellow-400 text-lg font-bold">
+                  Nagad: 018XXXXXXXX
+                </p>
+              )}
+              {formData.paymentMethod === "rocket" && (
+                <p className="text-yellow-400 text-lg font-bold">
+                  Rocket: 018XXXXXXXX
+                </p>
+              )}
+            </div>
+          )}
+
+          <InputField
+            label="Sender Number"
+            name="senderNumber"
+            required
+            value={formData.senderNumber}
+            onChange={handleChange}
+            placeholder="Number used to send payment"
+          />
+
+          <InputField
+            label="Transaction ID"
+            name="transactionId"
+            required
+            value={formData.transactionId}
+            onChange={handleChange}
+            placeholder="e.g., TXN12345ABC"
+          />
+        </section>
+
+        <button
+          type="submit"
+          className="w-full py-4 bg-cyan-600 rounded-xl text-black font-bold text-xl hover:bg-cyan-500"
+        >
+          Submit Registration
+        </button>
+      </form>
     </div>
   );
 };
 
-export default Registration;
+export default App;

@@ -1,209 +1,243 @@
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Zap, Target, Users, Trophy } from "lucide-react";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import CountdownTimer from "@/components/CountdownTimer";
-import CompetitionCard from "@/components/CompetitionCard";
+import {
+  Target,
+  Trophy,
+  Zap,
+  Shirt,
+  ClipboardCheck,
+  Coffee,
+} from "lucide-react";
+
 import heroBg from "@/assets/hero-bg.png";
+import { Button } from "@/components/ui/button";
+import { CountdownTimer } from "@/components/CountDown";
+import CompetitionCard from "@/components/CompetitionCard";
 
 const Index = () => {
-  // Set event date (adjust as needed)
-  const eventDate = "2025-03-15T09:00:00";
-
+  // --- HIGHLIGHTS (UPDATED, CLEANED) ---
   const highlights = [
     {
       icon: <Target size={32} />,
       title: "5 Competitions",
-      description: "Diverse challenges across robotics and technology",
-    },
-    {
-      icon: <Users size={32} />,
-      title: "200+ Participants",
-      description: "Top talent from universities nationwide",
+      description: "Diverse robotics & technology challenges",
     },
     {
       icon: <Trophy size={32} />,
-      title: "50,000+ Prizes",
-      description: "Rewarding innovation and excellence",
+      title: "160,000+ Prize Pool",
+      description: "Rewarding innovation & excellence",
     },
     {
       icon: <Zap size={32} />,
-      title: "2-Day Event",
-      description: "Intense competition and networking",
+      title: "1-Day Grand Event",
+      description: "A full day of robotics & innovation",
     },
   ];
 
+  // --- COMPETITIONS ---
   const competitions = [
     {
-      title: "Drone Challenge",
-      description:
-        "Navigate through obstacles and complete mission objectives with your autonomous drone.",
+      title: "Drone Race",
+      description: "Navigate autonomous drones through aerial tracks.",
       icon: "🚁",
+      prize: "45,000",
+      fee: "2,000",
       participants: 40,
-      prize: "15,000",
-      fee: "1,000",
+    },
+    {
+      title: "Robo Soccer",
+      description: "Build robots to compete in autonomous soccer.",
+      icon: "⚽",
+      prize: "30,000",
+      fee: "1,500",
+      participants: 35,
     },
     {
       title: "Line Following Robot",
-      description:
-        "Build a robot that can follow a line track with speed and precision.",
+      description: "High-speed precision robot racing track.",
       icon: "🤖",
+      prize: "30,000",
+      fee: "1,500",
       participants: 50,
-      prize: "12,000",
-      fee: "800",
     },
     {
       title: "Techathon",
-      description:
-        "24-hour hackathon to develop innovative tech solutions for real-world problems.",
+      description: "36-hour hackathon to develop AI/software innovation.",
       icon: "💻",
+      prize: "50,000",
+      fee: "2,000",
       participants: 60,
-      prize: "20,000",
-      fee: "500",
+    },
+    {
+      title: "Cosmo Cleanse",
+      description: "Robotic machine to clear simulated debris.",
+      icon: "✨",
+      prize: "35,000",
+      fee: "1,500",
+      participants: 30,
+    },
+  ];
+
+  // --- BENEFITS ---
+  const benefits = [
+    {
+      icon: <Shirt size={32} />,
+      title: "Official T-Shirt",
+      description: "Exclusive premium event T-shirt for participants",
+    },
+    {
+      icon: <ClipboardCheck size={32} />,
+      title: "Certificate",
+      description: "Official DIU Robotics Club certificate",
+    },
+    {
+      icon: <Coffee size={32} />,
+      title: "Food & Refreshments",
+      description: "Lunch + drinks for all participants",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-indigo-900 to-black text-white">
+      {/* HERO SECTION */}
       <section
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+        className="min-h-screen text-white bg-fixed bg-cover bg-center"
         style={{
-          backgroundImage: `url(${heroBg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundImage: `
+      linear-gradient(180deg, rgba(26,74,255,0.9), rgba(20,37,167,0.85), rgba(0,4,40,0.95)),
+      url(${heroBg})
+    `,
+          backgroundBlendMode: "overlay",
+          backdropFilter: "blur(10px)",
         }}
       >
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
+        <div className="absolute inset-0 bg-black/55 backdrop-blur-sm" />
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent to-[#1B0034]" />
 
-        {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 text-center">
+        <div className="relative z-10 container mx-auto px-4 pt-52 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.7 }}
           >
-            <h1 className="text-5xl md:text-7xl font-orbitron font-bold mb-6">
-              <span className="gradient-text">IntraSpark</span>{" "}
-              <span className="text-primary">2025</span>
+            <h1 className="text-5xl md:text-8xl font-orbitron font-extrabold mb-6">
+              <span className="bg-gradient-to-r from-cyan-400 to-indigo-500 bg-clip-text text-transparent">
+                RoboSpark
+              </span>{" "}
+              2025
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              Igniting Innovation Through Technology & Competition
+
+            <p className="text-xl md:text-2xl text-indigo-300 mb-10 max-w-3xl mx-auto">
+              Igniting Innovation Through Robotics & Technology
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button
                 asChild
                 size="lg"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 font-orbitron font-semibold text-lg px-8 glow-border"
+                className="font-orbitron bg-cyan-500 text-black hover:bg-cyan-400 text-lg px-10"
               >
                 <Link to="/register">Register Now</Link>
               </Button>
+
               <Button
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground font-orbitron font-semibold text-lg px-8"
+                className="font-orbitron text-lg px-10 border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black"
               >
                 <Link to="/competitions">Explore Competitions</Link>
               </Button>
             </div>
           </motion.div>
 
-          {/* Countdown Timer */}
+          {/* COUNTDOWN */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
           >
-            <h2 className="text-2xl md:text-3xl font-orbitron font-bold mb-8 text-primary">
+            <h2 className="text-2xl font-orbitron font-bold mb-6 text-cyan-300">
               Event Starts In
             </h2>
-            <CountdownTimer targetDate={eventDate} />
+            <CountdownTimer />
           </motion.div>
         </div>
       </section>
 
-      {/* About Section */}
-      <section className="py-20 bg-card/30">
-        <div className="container mx-auto px-4">
+      {/* ABOUT */}
+      <section className="py-20 ">
+        <div className="container  px-4 text-center max-w-4xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center max-w-4xl mx-auto"
+            transition={{ duration: 0.7 }}
           >
-            <h2 className="text-4xl md:text-5xl font-orbitron font-bold mb-6 gradient-text">
-              About IntraSpark
+            <h2 className="text-4xl md:text-5xl font-orbitron font-bold mb-6 bg-gradient-to-r from-cyan-300 to-indigo-400 bg-clip-text text-transparent">
+              About RoboSpark
             </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              IntraSpark 2025 is an inter-university robotics and technology
-              competition organized by the DIU Robotics Club. Join us for two
-              days of intense competition, innovation, and networking as teams
-              from across the country compete in cutting-edge challenges
-              spanning robotics, AI, and software development.
+
+            <p className="text-lg text-gray-200 leading-relaxed">
+              RoboSpark 2025 is an inter-university robotics and technology
+              competition hosted by DIU Robotics Club. A celebration of
+              engineering excellence, creativity, and innovation.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Highlights */}
+      {/* HIGHLIGHTS */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-orbitron font-bold mb-12 text-center gradient-text">
+          <h2 className="text-4xl font-orbitron font-bold mb-14 text-center bg-gradient-to-r from-cyan-300 to-indigo-400 bg-clip-text text-transparent">
             Event Highlights
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {highlights.map((highlight, index) => (
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {highlights.map((h, i) => (
               <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
+                key={i}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
-                className="bg-card/50 backdrop-blur-sm rounded-lg p-6 text-center neon-border hover:glow-border transition-all duration-300"
+                transition={{ delay: i * 0.2 }}
+                className="bg-gray-900/50 p-8 rounded-xl text-center border border-indigo-700/50 hover:shadow-xl hover:shadow-cyan-400/20 transition"
               >
-                <div className="text-primary mb-4 flex justify-center">
-                  {highlight.icon}
+                <div className="text-cyan-300 mb-4 flex justify-center">
+                  {h.icon}
                 </div>
-                <h3 className="text-xl font-orbitron font-bold mb-2">
-                  {highlight.title}
-                </h3>
-                <p className="text-muted-foreground">{highlight.description}</p>
+                <h3 className="text-xl font-orbitron font-bold">{h.title}</h3>
+                <p className="text-gray-300 mt-2">{h.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Featured Competitions */}
-      <section className="py-20 bg-card/30">
+      {/* FEATURED COMPETITIONS */}
+      <section className="py-20  backdrop-blur-sm">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-orbitron font-bold mb-12 text-center gradient-text">
-            Featured Competitions
+          <h2 className="text-4xl font-orbitron font-bold mb-12 text-center bg-gradient-to-r from-cyan-400 to-indigo-500 bg-clip-text text-transparent">
+            Featured Challenges
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {competitions.map((comp, index) => (
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {competitions.slice(0, 5).map((c, index) => (
               <CompetitionCard
                 key={index}
-                title={comp.title}
-                description={comp.description}
-                icon={<span className="text-4xl">{comp.icon}</span>}
-                participants={comp.participants}
-                prize={comp.prize}
-                fee={comp.fee}
+                {...c}
+                icon={<span className="text-4xl">{c.icon}</span>}
                 index={index}
               />
             ))}
           </div>
+
           <div className="text-center">
             <Button
               asChild
               size="lg"
-              className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-orbitron font-semibold"
+              className="bg-cyan-500 text-black hover:bg-cyan-400 font-orbitron text-lg px-16"
             >
               <Link to="/competitions">View All Competitions</Link>
             </Button>
@@ -211,26 +245,60 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* BENEFITS */}
+      <section className="py-20 ">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-orbitron font-bold mb-12 text-center">
+            Participant <span className="text-cyan-400">Benefits</span>
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {benefits.map((b, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.2 }}
+                className="bg-gray-900/60 p-8 rounded-xl text-center border border-cyan-700/40"
+              >
+                <div className="text-cyan-400 mb-4 flex justify-center">
+                  {b.icon}
+                </div>
+                <h3 className="text-xl font-orbitron font-bold">{b.title}</h3>
+                <p className="text-gray-300 mt-2">{b.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
       <section className="py-20">
         <div className="container mx-auto px-4">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.92 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="bg-card/50 backdrop-blur-sm rounded-2xl p-12 text-center neon-border"
+            transition={{ duration: 0.8 }}
+            className="bg-indigo-900/50 border-2 border-indigo-600/40 rounded-3xl p-14 text-center shadow-2xl"
           >
-            <h2 className="text-4xl md:text-5xl font-orbitron font-bold mb-6 gradient-text">
-              Ready to Compete?
+            <h2 className="text-4xl md:text-5xl font-orbitron font-bold mb-6 text-white">
+              Ready to{" "}
+              <span className="bg-gradient-to-r from-cyan-300 to-indigo-400 bg-clip-text text-transparent">
+                Compete?
+              </span>
             </h2>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Register your team now and be part of the most exciting robotics
-              and technology competition of the year!
+
+            <p className="text-xl text-indigo-200 mb-8 max-w-3xl mx-auto">
+              Register your team now and join the most exciting robotics event
+              of 2025!
             </p>
+
             <Button
               asChild
               size="lg"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 font-orbitron font-semibold text-lg px-12 glow-border"
+              className="bg-cyan-500 hover:bg-cyan-400 text-black font-orbitron text-lg px-16"
             >
               <Link to="/register">Register Your Team</Link>
             </Button>
