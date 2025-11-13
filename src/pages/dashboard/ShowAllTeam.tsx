@@ -150,7 +150,7 @@ export default function TeamsPage(): JSX.Element {
     try {
       const doc = new jsPDF("p", "pt", "a4");
 
-      doc.setFontSize(18);
+      doc.setFontSize(16);
       doc.text("RoboSpark 2025 — Full Team Report", 40, 40);
 
       const columns = [
@@ -191,7 +191,7 @@ export default function TeamsPage(): JSX.Element {
         body: rows,
         startY: 70,
         styles: {
-          fontSize: 9,
+          fontSize: 7,
           cellPadding: 4,
           overflow: "linebreak",
         },

@@ -24,80 +24,75 @@ const Link = (props) => (
 const SponsorSection = () => {
   const sponsors = [
     {
-      name: "Quantum Solutions",
-      tier: "Title Sponsor",
+      name: "Department of SWE",
+      tier: "DIU SWE Department",
+      logoUrl: "/sponsor.png",
+      size: "xl",
+    },
+    {
+      name: "Daffodil International University",
+      tier: "Daffodil International University",
       logoUrl: "/sponsor1.png",
-      size: "large",
-      ring: "from-cyan-400 to-blue-500",
+      size: "lg",
     },
     {
-      name: "Cyber Guard",
-      tier: "Gold Sponsor",
+      name: "DIU Robotics Club",
+      tier: "DIU Robotics Club",
       logoUrl: "/sponsor2.png",
-      size: "medium",
-      ring: "from-amber-400 to-orange-500",
+      size: "lg",
     },
     {
-      name: "RoboFuture",
-      tier: "Silver Sponsor",
+      name: "IntraSpark",
+      tier: "Event Partner",
       logoUrl: "/sponsor3.png",
-      size: "small",
-      ring: "from-purple-400 to-pink-500",
+      size: "md",
     },
   ];
 
   const getSize = (size: string) => {
     switch (size) {
-      case "large":
-        return "h-16 sm:h-20";
-      case "medium":
-        return "h-12 sm:h-16";
-      case "small":
-        return "h-10 sm:h-14";
+      case "xl":
+        return "h-24 sm:h-28 md:h-32"; // biggest
+      case "lg":
+        return "h-20 sm:h-24 md:h-28";
+      case "md":
+        return "h-16 sm:h-20 md:h-24";
       default:
-        return "h-12";
+        return "h-16";
     }
   };
 
   return (
-    <div className="py-16 bg-gradient-to-b from-transparent to-black/20 px-4 sm:px-6 lg:px-8">
+    <div
+      className="py-20 px-4 sm:px-6 lg:px-8"
+      style={{
+        backgroundImage:
+          "linear-gradient(164deg, #302D7F 0%, #1A1843 45%, #010102 100%)",
+      }}
+    >
       <div className="max-w-7xl mx-auto">
-        <h2
-          className="text-4xl font-extrabold text-center mb-14 font-inter 
-        text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400"
-        >
-          Our Sponsors
+        {/* Section Title */}
+        <h2 className="text-4xl font-orbitron font-extrabold text-center mb-14 bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent drop-shadow-md">
+          Official Organizers & Sponsors
         </h2>
 
-        <div className="flex flex-wrap justify-center items-center gap-10">
+        {/* Sponsor List */}
+        <div className="flex flex-wrap justify-center items-center gap-16 md:gap-24">
           {sponsors.map((sponsor) => (
-            <div
-              key={sponsor.name}
-              className="
-                p-[2px] rounded-2xl 
-                bg-gradient-to-br shadow-lg shadow-black/40
-                hover:shadow-cyan-500/20 transition-all duration-300
-              "
-              style={{
-                backgroundImage: `linear-gradient(135deg, var(--tw-gradient-from), var(--tw-gradient-to))`,
-              }}
-            >
-              <div
-                className="
-                  bg-gray-900/70 backdrop-blur-xl 
-                  rounded-2xl px-6 py-4 flex items-center justify-center
-                  border border-white/5 hover:border-cyan-400/30 
-                  transition-all duration-300
-                "
-              >
-                <img
-                  src={sponsor.logoUrl}
-                  alt={`${sponsor.name} Logo`}
-                  className={`${getSize(
-                    sponsor.size
-                  )} object-contain opacity-70 hover:opacity-100 transition-all duration-300`}
-                />
-              </div>
+            <div key={sponsor.name} className="flex flex-col items-center">
+              {/* Logo */}
+              <img
+                src={sponsor.logoUrl}
+                alt={sponsor.name}
+                className={`${getSize(
+                  sponsor.size
+                )} object-contain  hover:opacity-100 transition-all duration-300`}
+              />
+
+              {/* Tier label */}
+              <p className="text-gray-300 mt-4 text-base font-semibold text-center">
+                {sponsor.tier}
+              </p>
             </div>
           ))}
         </div>

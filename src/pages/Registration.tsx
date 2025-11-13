@@ -1,6 +1,11 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { db } from "@/firebase/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  getDocs,
+} from "firebase/firestore";
 import { CountdownTimer } from "@/components/CountDown";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
@@ -53,13 +58,21 @@ const App: React.FC = () => {
 
   const competitions = Object.keys(competitionFees);
 
-  // NEW: Coupon list
-  const coupons: any = {
-    TEST1: 5,
-    TEST2: 10,
-    TEST3: 15,
-    TJHSOTYPE: 20,
-  };
+  const [couponList, setCouponList] = useState<any[]>([]);
+  useEffect(() => {
+    const fetchCoupons = async () => {
+      const snap = await getDocs(collection(db, "coupons"));
+      const list: any[] = [];
+
+      snap.forEach((doc) => {
+        list.push(doc.data());
+      });
+
+      setCouponList(list);
+    };
+
+    fetchCoupons();
+  }, []);
 
   const [formData, setFormData] = useState({
     teamName: "",
@@ -71,7 +84,7 @@ const App: React.FC = () => {
     paymentMethod: "",
     senderNumber: "",
     transactionId: "",
-    couponCode: "", // NEW
+    couponCode: "",
     members: [
       { name: "", email: "", phone: "" },
       { name: "", email: "", phone: "" },
@@ -137,13 +150,24 @@ const App: React.FC = () => {
     const extraFee = extraMembers * feeInfo.extra;
     const subtotal = base + extraFee;
 
-    // NEW: Apply coupon if valid
+    // Firestore coupon check
     let discountPercent = 0;
     let discountAmount = 0;
 
-    if (formData.couponCode && coupons[formData.couponCode.toUpperCase()]) {
-      discountPercent = coupons[formData.couponCode.toUpperCase()];
-      discountAmount = Math.floor((subtotal * discountPercent) / 100);
+    const couponObj = couponList.find(
+      (c) => c.code.toUpperCase() === formData.couponCode.toUpperCase()
+    );
+
+    if (couponObj) {
+      // Check expiry
+      const today = new Date().toISOString().split("T")[0];
+      const isExpired =
+        couponObj.expires !== "N/A" && couponObj.expires < today;
+
+      if (couponObj.isActive && !isExpired) {
+        discountPercent = couponObj.percentage;
+        discountAmount = Math.floor((subtotal * discountPercent) / 100);
+      }
     }
 
     const total = subtotal - discountAmount;
@@ -157,7 +181,7 @@ const App: React.FC = () => {
       discountAmount,
       total,
     };
-  }, [formData.competition, teamSize, formData.couponCode]);
+  }, [formData.competition, teamSize, formData.couponCode, couponList]);
 
   const submitForm = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -184,7 +208,11 @@ const App: React.FC = () => {
         fees: calculatedFees,
         registeredAt: serverTimestamp(),
       });
-
+      // await fetch("http://localhost:5000/api/register-mail", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(formData),
+      // });
       Swal.fire("Success", "Your team has been registered!", "success");
 
       setFormData({
@@ -419,11 +447,10 @@ const App: React.FC = () => {
             value={formData.couponCode}
             onChange={handleChange}
           />
-
           {formData.couponCode &&
-            !coupons[formData.couponCode.toUpperCase()] && (
-              <p className="text-red-400 text-sm">Invalid coupon code.</p>
-            )}
+            !couponList.find(
+              (c) => c.code.toUpperCase() === formData.couponCode.toUpperCase()
+            ) && <p className="text-red-400 text-sm">Invalid coupon code.</p>}
         </section>
 
         {/* PAYMENT */}

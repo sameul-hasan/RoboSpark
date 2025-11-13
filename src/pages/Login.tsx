@@ -13,7 +13,7 @@ const DashboardLogin: React.FC = () => {
     e.preventDefault();
 
     const success = login(email, password);
-    navigate("/dashboard/teams");
+    navigate("/dashboard");
     if (success) {
       Swal.fire("Success!", "Dashboard Login Successful", "success");
     } else {
@@ -22,7 +22,7 @@ const DashboardLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+    <div className="min-h-screen flex items-center justify-center  text-white bg-gradient-to-br from-black via-gray-900 to-blue-950 p-6 border-gray-700/50">
       <form
         onSubmit={handleLogin}
         className="bg-gray-900 p-10 rounded-2xl border border-cyan-600 w-96"

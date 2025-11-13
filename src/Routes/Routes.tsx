@@ -10,6 +10,10 @@ import Registration from "@/pages/Registration";
 import { createBrowserRouter } from "react-router-dom";
 import DashboardHome from "@/pages/dashboard/Index";
 import DashboardProtected from "@/pages/dashboard/DashboardProtected";
+import Coupon from "@/pages/dashboard/Coupons";
+import AdminLayout from "@/Layouts/AdminLayout";
+import ProtectedRoute from "./Protected";
+import CouponManager from "@/pages/dashboard/Coupons";
 
 const router = createBrowserRouter([
   {
@@ -29,10 +33,15 @@ const router = createBrowserRouter([
   // DASHBOARD PROTECTED
   {
     path: "/dashboard",
-    Component: DashboardProtected,
+    element: (
+      <ProtectedRoute>
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
     children: [
-      { index: true, Component: DashboardHome },
-      { path: "teams", Component: TeamsPage },
+      { path: "", element: <DashboardHome /> },
+      { path: "teams", element: <TeamsPage /> },
+      { path: "coupons", element: <CouponManager /> },
     ],
   },
 ]);
