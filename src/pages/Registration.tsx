@@ -84,7 +84,7 @@ const App: React.FC = () => {
     paymentMethod: "",
     senderNumber: "",
     transactionId: "",
-    couponCode: "", 
+    couponCode: "",
     members: [
       { name: "", email: "", phone: "" },
       { name: "", email: "", phone: "" },
@@ -208,7 +208,11 @@ const App: React.FC = () => {
         fees: calculatedFees,
         registeredAt: serverTimestamp(),
       });
-
+      // await fetch("http://localhost:5000/api/register-mail", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(formData),
+      // });
       Swal.fire("Success", "Your team has been registered!", "success");
 
       setFormData({
