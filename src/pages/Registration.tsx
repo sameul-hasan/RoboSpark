@@ -64,11 +64,14 @@ const App: React.FC = () => {
       const snap = await getDocs(collection(db, "coupons"));
       const list: any[] = [];
 
-      snap.forEach((doc) => {
-        const data = doc.data();
+      snap.forEach((docSnap) => {
+        const d = docSnap.data();
+
         list.push({
-          ...data,
-          percentage: Number(data.percentage),
+          id: docSnap.id,
+          name: d.name?.trim() || "",
+          code: d.code?.toString().trim().toUpperCase(),
+          percentage: Number(d.percentage) || 0,
         });
       });
 
@@ -161,17 +164,10 @@ const App: React.FC = () => {
     const couponObj = couponList.find(
       (c) => c.code.toUpperCase() === formData.couponCode.toUpperCase()
     );
-
     if (couponObj) {
-      // Check expiry
-      const today = new Date().toISOString().split("T")[0];
-      const isExpired =
-        couponObj.expires !== "N/A" && couponObj.expires < today;
-
-      if (couponObj.isActive && !isExpired) {
         discountPercent = couponObj.percentage;
         discountAmount = Math.floor((subtotal * discountPercent) / 100);
-      }
+      
     }
 
     const total = subtotal - discountAmount;
