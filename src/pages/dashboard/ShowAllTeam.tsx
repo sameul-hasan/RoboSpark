@@ -251,6 +251,7 @@ export default function TeamsPage(): JSX.Element {
       Swal.fire("Error", "Unable to generate Excel. Check console.", "error");
     }
   };
+  const API_URL = import.meta.env.VITE_API_URL;
 
   /* ------------------------------ Edit Modal ----------------------------- */
   const openEdit = (team: Team) => {
@@ -400,6 +401,7 @@ export default function TeamsPage(): JSX.Element {
     const label = team.paymentAccepted
       ? "Unmark payment?"
       : "Mark payment as accepted?";
+
     const confirmed = await Swal.fire({
       title: label,
       text: `${team.teamName}`,
@@ -411,20 +413,48 @@ export default function TeamsPage(): JSX.Element {
     if (!confirmed.isConfirmed) return;
 
     try {
+      const newStatus = !team.paymentAccepted;
+
+      // 1️⃣ Update Firestore
       await updateDoc(doc(db, "registrations", teamId), {
-        paymentAccepted: !team.paymentAccepted,
+        paymentAccepted: newStatus,
       });
+
+      // update local state
       setTeams((prev) =>
         prev.map((t) =>
-          t.id === teamId ? { ...t, paymentAccepted: !t.paymentAccepted } : t
+          t.id === teamId ? { ...t, paymentAccepted: newStatus } : t
         )
       );
       setFilteredTeams((prev) =>
         prev.map((t) =>
-          t.id === teamId ? { ...t, paymentAccepted: !t.paymentAccepted } : t
+          t.id === teamId ? { ...t, paymentAccepted: newStatus } : t
         )
       );
-      Swal.fire("Updated", `Payment status updated.`, "success");
+
+      // 2️⃣ SEND EMAIL ONLY IF MARKED TRUE
+      if (newStatus === true) {
+        try {
+          await fetch(`${API_URL}/api/payment-mail`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(team),
+          });
+
+          Swal.fire("Payment Confirmed", "Email sent successfully!", "success");
+        } catch (emailErr) {
+          console.error("Email error:", emailErr);
+          Swal.fire(
+            "Warning",
+            "Payment marked, but email could not be sent.",
+            "warning"
+          );
+        }
+      } else {
+        Swal.fire("Updated", "Payment unmarked.", "success");
+      }
     } catch (err) {
       console.error("togglePayment error:", err);
       Swal.fire("Error", "Failed to update payment. Check console.", "error");

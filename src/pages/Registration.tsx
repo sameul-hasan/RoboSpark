@@ -165,9 +165,8 @@ const App: React.FC = () => {
       (c) => c.code.toUpperCase() === formData.couponCode.toUpperCase()
     );
     if (couponObj) {
-        discountPercent = couponObj.percentage;
-        discountAmount = Math.floor((subtotal * discountPercent) / 100);
-      
+      discountPercent = couponObj.percentage;
+      discountAmount = Math.floor((subtotal * discountPercent) / 100);
     }
 
     const total = subtotal - discountAmount;
@@ -207,6 +206,13 @@ const App: React.FC = () => {
         teamSize,
         fees: calculatedFees,
         registeredAt: serverTimestamp(),
+      });
+      const API_URL = import.meta.env.VITE_API_URL;
+
+      await fetch(`${API_URL}/api/register-mail`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
 
       Swal.fire("Success", "Your team has been registered!", "success");
